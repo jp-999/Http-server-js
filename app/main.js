@@ -7,7 +7,7 @@ console.log("Logs from your program will appear here!");
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     // Respond with the HTTP 200 OK response
-    socket.write("HTTP/1.1 200 OK\r\n\r\n");
+    socket.write("HTTP/1.1 404 OK\r\n\r\n");
     socket.end(); // Close the socket after sending the response
   });
   socket.on("close", () => {
