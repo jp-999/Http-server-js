@@ -6,8 +6,14 @@ console.log("Logs from your program will appear here!");
 // Uncomment this to pass the first stage
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
-    // Respond with the HTTP 200 OK response
-    socket.write("HTTP/1.1 404 OK\r\n\r\n");
+     // Check if the request is for a specific path (e.g., "/not-found")
+     if (request.includes("GET /not-found")) {
+        // Respond with HTTP 404 Not Found
+        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      } else {
+        // Respond with HTTP 200 OK for all other requests
+        socket.write("HTTP/1.1 200 OK\r\n\r\n");
+      }
     socket.end(); // Close the socket after sending the response
   });
   socket.on("close", () => {
