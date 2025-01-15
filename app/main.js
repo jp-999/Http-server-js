@@ -9,8 +9,11 @@ const server = net.createServer((socket) => {
     const request = data.toString();
     console.log("Received request:", request);
 
+    // Extract the request path
+    const requestPath = request.split(' ')[1];
+
     // Check if the request is for the "/not-found" path
-    if (request.startsWith("GET /not-found")) {
+    if (requestPath === "/not-found") {
       // Respond with HTTP 404 Not Found
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       console.log("Responded with 404 Not Found");
