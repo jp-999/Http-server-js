@@ -27,3 +27,8 @@ const server = net.createServer((socket) => {
 });
 
 server.listen(4221, "localhost");
+
+function handleEchoRequest(path, socket) {
+    const str = path.substring(6);
+    writeResponse(socket, "text/plain", str);
+}
