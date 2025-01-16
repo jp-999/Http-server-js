@@ -2,29 +2,46 @@ const net = require("net");
 
 console.log("Logs from your program will appear here!");
 
+// Create a new HTTP server.
 const server = net.createServer((socket) => {
-  socket.on("data", (data) => {
-    const [requestLine, ...headers] = data.toString().split("\r\n");
-        const [method, path] = requestLine.split(" ");
-
-        if (path === "/") {
-            socket.write("HTTP/1.1 200 OK\r\n\r\n");
-        } else if(path.startsWith("/echo/")) {
-            handleEchoRequest(path, socket);
-        } else if(path === "/user-agent") {
-            handleUserAgentRequest(headers, socket);
-        } else if(path.startsWith("/files/")) {
-            handleFileRequest(method, path, headers, socket);
-        } else {
-            socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-        }
-    socket.end(); // Close the socket after sending the response
+    // This callback function is called when a new connection is established.
+    
+    // Listen for incoming data on the socket.
+    socket.on("data", (data) => {
+      // Convert the incoming data to a string.
+      const [requestLine, ...headers] = data.toString().split("\r\n");
+      
+      // Split the request line into the HTTP method and the requested path.
+      const [method, path] = requestLine.split(" ");
+      
+      // Handle different types of requests based on the path.
+      if (path === "/") {
+        // If the path is the root URL, send a 200 OK response.
+        socket.write("HTTP/1.1 200 OK\r\n\r\n");
+      } else if(path.startsWith("/echo/")) {
+        // If the path starts with '/echo/', handle the echo request.
+        handleEchoRequest(path, socket);
+      } else if(path === "/user-agent") {
+        // If the path is '/user-agent', handle the user agent request.
+        handleUserAgentRequest(headers, socket);
+      } else if(path.startsWith("/files/")) {
+        // If the path starts with '/files/', handle the file request.
+        handleFileRequest(method, path, headers, socket);
+      } else {
+        // If the path does not match any of the above, send a 404 Not Found response.
+        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      }
+      
+      // Close the socket after sending the response.
+      socket.end();
+    });
+    
+    // Listen for the 'close' event on the socket.
+    socket.on("close", () => {
+      // Close the socket when the 'close' event is emitted.
+      socket.end();
+    });
   });
-
-  socket.on("close", () => {
-    socket.end();
-  });
-});
 
 server.listen(4221, "localhost");
 
