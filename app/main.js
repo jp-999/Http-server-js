@@ -45,36 +45,70 @@ const server = net.createServer((socket) => {
 
 server.listen(4221, "localhost");
 
+// Function to handle echo requests.
 function handleEchoRequest(path, socket) {
+    // Extract the string to be echoed from the path.
     const str = path.substring(6);
+    
+    // Send the echoed string as a response.
     writeResponse(socket, "text/plain", str);
-}
+  }
 
+// Function to handle user agent requests.
 function handleUserAgentRequest(headers, socket) {
-    const userAgentLine = headers.find(x => x.startsWith("User-Agent:"));
+    // Find the 'User -Agent' header in the request headers.
+    const userAgentLine = headers.find(x => x.startsWith("User -Agent:"));
+    
+    // Extract the user agent string from the header.
     const str = userAgentLine.split(": ")[1];
+    
+    // Send the user agent string as a response.
     writeResponse(socket, "text/plain", str);
-}
+  }
 
+// Function to handle file requests.
 function handleFileRequest(method, path, headers, socket) {
+    // Extract the filename from the path.
     const filename = path.substring(7);
+    
+    // Handle GET requests.
     if(method == "GET") {
-        if(fs.existsSync(paths.join(args[1], filename))) {
-            const fileContent = fs.readFileSync(paths.join(args[1], filename));
-            writeResponse(socket, "application/octet-stream", fileContent);
-        } else {
-            socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-        }
-    } else if(method === "POST") {
-        const location = paths.join(args[1], filename)
-        fs.writeFileSync(location, headers[headers.length - 1]);
-        socket.write("HTTP/1.1 201 Created\r\n\r\n");
+      // Check if the file exists.
+      if(fs.existsSync(paths.join(args[1], filename))) {
+        // Read the file content.
+        const fileContent = fs.readFileSync(paths.join(args[1], filename));
+        
+        // Send the file content as a response.
+        writeResponse(socket, "application/octet-stream", fileContent);
+      } else {
+        // Send a 404 Not Found response if the file does not exist.
+        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      }
+    } 
+    // Handle POST requests.
+    else if(method === "POST") {
+      // Get the location of the file to be written.
+      const location = paths.join(args[1], filename)
+      
+      // Write the file content.
+      fs.writeFileSync(location, headers[headers.length - 1]);
+      
+      // Send a 201 Created response.
+      socket.write("HTTP/1.1 201 Created\r\n\r\n");
     }
-}
+  }
 
+// Function to write a response to the socket.
 function writeResponse(socket, contentType, content) {
+    // Send the HTTP status line.
     socket.write("HTTP/1.1 200 OK\r\n");
+    
+    // Send the 'Content-Type' header.
     socket.write(`Content-Type: ${contentType}\r\n`);
-    socket.write(`Content-Length:${content.length}\r\n\r\n`);
-    socket.write(content);
+
+    // Send the 'Content-Length' header.
+socket.write(`Content-Length:${content.length}\r\n\r\n`);
+  
+// Send the response content.
+socket.write(content);
 }
