@@ -99,54 +99,86 @@ const createHttpResponse = ({
       }
     }
 
-  let response = "";
-  Object.values(response_headers).forEach((value) => {
-    response += value;
-  });
+  // Initialize the response string
+let response = "";
 
-  response += NEW_LINE; // every header adds a new line so after all headers add a new line so it becomes two new lines meaning end of headers
+// Add the response headers to the response string
+Object.values(response_headers).forEach((value) => {
+  response += value;
+});
 
-  response += body;
+// Add a newline character to the response string to indicate the end of headers
+response += NEW_LINE; // every header adds a new line so after all headers add a new line so it becomes two new lines meaning end of headers
 
-  return response;
+// Add the body to the response string
+response += body;
+
+// Return the response string
+return response;
 };
 
+// Create a TCP server
 const server = net.createServer((socket) => {
+  // Handle the close event for the socket
   socket.on("close", () => {
+    // End the socket
     socket.end();
   });
 
+  // Handle the data event for the socket
   socket.on("data", (data) => {
+    // Convert the data to a string
     const stringData = data.toString();
+    // Log the string data
     console.log(stringData);
 
+    // Split the string data into an array of lines
     const arrayData = stringData.split("\r\n");
 
+    // Get the body of the request
     const body = arrayData[arrayData.length - 1];
 
+    // Split the first line of the request into an array of method, path, and version
     const methodPathVersion = arrayData[0].split(" ");
+    // Get the method of the request
     const method = methodPathVersion[0];
+    // Get the path of the request
     const path = methodPathVersion[1];
+    // Get the version of the request
     const version = methodPathVersion[2];
 
+    // Initialize the request object
     const request = {
+      // Set the method of the request
       method: method,
+      // Set the path of the request
       path: path,
+      // Set the version of the request
       version: version,
     };
 
+    // Handle the request for the root path
     if (request.path === "/") {
+      // Create an HTTP response for the request
       const response = createHttpResponse({});
+      // Write the response to the socket
       socket.write(response);
     }
 
+    // Iterate over the lines of the request
     arrayData.map((header) => {
-      if (header.includes("User-Agent:")) {
+      // Check if the header includes the user agent
+      if (header.includes("User -Agent:")) {
+        // Split the header into an array of key and value
         let splited = header.split(": ");
+        // Set the user agent of the request
         request.userAgent = splited[1];
       }
+      // Check if the header includes the accept encoding
       if (header.includes("Accept-Encoding:")) {
+        // Split the header into an array of key and value
         let splited = header.split(": ");
+        // Set the accept encoding of the request
         request.acceptEncoding = splited[1];
       }
     });
