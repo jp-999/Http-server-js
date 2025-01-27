@@ -4,7 +4,6 @@ const zlib = require("zlib");
 
 const PORT = 4221;
 const fileDir = process.argv[3];
-// You can use print statements as follows for debugging, they'll be visible when running tests.
 
 const createHttpResponse = ({
   message = "OK",
@@ -76,7 +75,6 @@ const createHttpResponse = ({
   return response;
 };
 
-// Uncomment this to pass the first stage
 const server = net.createServer((socket) => {
   socket.on("close", () => {
     socket.end();
@@ -101,7 +99,6 @@ const server = net.createServer((socket) => {
       version: version,
     };
 
-    // if path is "/" return "HTTP/1.1 200 OK\r\n\r\n"
     if (request.path === "/") {
       const response = createHttpResponse({});
       socket.write(response);
