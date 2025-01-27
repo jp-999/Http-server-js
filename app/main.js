@@ -56,6 +56,7 @@ function handleEchoRequest(path, socket) {
 
 // Function to handle user agent requests.
 // Function to handle user agent requests.
+// Function to handle user agent requests.
 function handleUserAgentRequest(headers, socket) {
     // Find the 'User -Agent' header in the request headers.
     const userAgentLine = headers.find(x => x.startsWith("User -Agent:"));
@@ -65,8 +66,14 @@ function handleUserAgentRequest(headers, socket) {
         // Extract the user agent string from the header.
         const str = userAgentLine.split(": ")[1];
         
-        // Send the user agent string as a response.
-        writeResponse(socket, "text/plain", str);
+        // Check if the user agent string is not null or undefined.
+        if (str) {
+            // Send the user agent string as a response.
+            writeResponse(socket, "text/plain", str);
+        } else {
+            // Send a 404 Not Found response if the user agent string is null or undefined.
+            socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+        }
     } else {
         // Send a 404 Not Found response if the 'User -Agent' header is not present.
         socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
