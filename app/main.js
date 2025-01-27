@@ -15,170 +15,138 @@ const fileDir = process.argv[3];
 
 // Define a function to create an HTTP response
 const createHttpResponse = ({
-    // Optional message for the response (default: "OK")
-    message = "OK",
-    // Optional status code for the response (default: 200)
-    statusCode = 200,
-    // Optional body for the response (default: "")
-    body = "",
-    // Optional accept encoding for the response (default: "")
-    acceptEncoding = "",
-    // Optional content type for the response (default: "text/plain")
-    contentType = "text/plain",
-    // Optional user agent for the response (default: "")
-    userAgent = "",
-    // Optional flag to compress the body (default: false)
-    compressBody = false,
-  }) => {
-    // Define the HTTP version for the response
-    const HTTP_VERSION = "HTTP/1.1";
-    // Define the newline character for the response
-    const NEW_LINE = "\r\n";
-  
-    // Initialize the response headers
-    let response_headers = {
-      // Initialize the headline for the response
-      headLine: `${HTTP_VERSION} ${statusCode} ${message}${NEW_LINE}`,
-      // Initialize the accept encoding header for the response
-      acceptEncoding: "Accept-Encoding: " + acceptEncoding + NEW_LINE,
-      // Initialize the content type header for the response
-      contentType: "Content-Type: " + contentType + NEW_LINE,
-      // Initialize the content length header for the response
-      contentLength: "Content-Length: " + body.length + NEW_LINE,
-    };
-  
-    // Update the headline if the message is not "OK" and the status code is not 200
-    if (message !== "OK" && statusCode !== 200) {
-      response_headers.headLine = `${HTTP_VERSION} ${statusCode} ${message}${NEW_LINE}`;
-    }
-  
-    // Update the accept encoding header if it includes "gzip"
-    if (acceptEncoding && acceptEncoding.includes("gzip")) {
-      // Set the accept encoding to "gzip" and add a content encoding header
-      response_headers.acceptEncoding = "Accept-Encoding: " + "gzip" + NEW_LINE;
-      response_headers.contentEncoding = "Content-Encoding: " + "gzip" + NEW_LINE;
-    }
-  
-    // Update the content type header if it is not "text/plain"
-    if (contentType !== "text/plain") {
-      response_headers.contentType = "Content-Type: " + contentType + NEW_LINE;
-    }
-  
-    // Add the user agent header if it is not empty
-    if (userAgent !== "") {
-      response_headers.userAgent = "User -Agent: " + userAgent + NEW_LINE;
-    }
-  
-    // Check if the body is not empty
-    if (body !== "") {
-      // Check if the content encoding is "gzip" and the compressBody flag is true
-      if (
-        response_headers.contentEncoding?.includes("gzip") &&
-        compressBody === true
-      ) {
-        // Compress the body using zlib
-        const compressed = zlib.gzipSync(body);
-  
-        // Update the content length header with the compressed length
-        response_headers.contentLength =
-          "Content-Length: " + compressed.length + NEW_LINE; // overwrite content length
-  
-        // Initialize the response string
-        let response = "";
-  
-        // Add the response headers to the response string
-        Object.values(response_headers).forEach((value) => {
-          response += value;
-        });
-  
-        // Add a newline character to the response string to indicate the end of headers
-        response += NEW_LINE; // every header adds a new line so after all headers add a new line so it becomes two new lines meaning end of headers
-  
-        // Return the response string and the compressed body
-        return [response, compressed];
-      }
-    }
+  // Optional message for the response (default: "OK")
+  message = "OK",
+  // Optional status code for the response (default: 200)
+  statusCode = 200,
+  // Optional body for the response (default: "")
+  body = "",
+  // Optional accept encoding for the response (default: "")
+  acceptEncoding = "",
+  // Optional content type for the response (default: "text/plain")
+  contentType = "text/plain",
+  // Optional user agent for the response (default: "")
+  userAgent = "",
+  // Optional flag to compress the body (default: false)
+  compressBody = false,
+}) => {
+  // Define the HTTP version for the response
+  const HTTP_VERSION = "HTTP/1.1";
+  // Define the newline character for the response
+  const NEW_LINE = "\r\n";
 
-  // Initialize the response string
-let response = "";
+  // Initialize the response headers
+  let response_headers = {
+    // Initialize the headline for the response
+    headLine: `${HTTP_VERSION} ${statusCode} ${message}${NEW_LINE}`,
+    // Initialize the accept encoding header for the response
+    acceptEncoding: "Accept-Encoding: " + acceptEncoding + NEW_LINE,
+    // Initialize the content type header for the response
+    contentType: "Content-Type: " + contentType + NEW_LINE,
+    // Initialize the content length header for the response
+    contentLength: "Content-Length: " + body.length + NEW_LINE,
+  };
 
-// Add the response headers to the response string
-Object.values(response_headers).forEach((value) => {
-  response += value;
-});
+  // Update the headline if the message is not "OK" and the status code is not 200
+  if (message !== "OK" && statusCode !== 200) {
+    response_headers.headLine = `${HTTP_VERSION} ${statusCode} ${message}${NEW_LINE}`;
+  }
 
-// Add a newline character to the response string to indicate the end of headers
-response += NEW_LINE; // every header adds a new line so after all headers add a new line so it becomes two new lines meaning end of headers
+  // Update the accept encoding header if it includes "gzip"
+  if (acceptEncoding && acceptEncoding.includes("gzip")) {
+    // Set the accept encoding to "gzip" and add a content encoding header
+    response_headers.acceptEncoding = "Accept-Encoding: " + "gzip" + NEW_LINE;
+    response_headers.contentEncoding = "Content-Encoding: " + "gzip" + NEW_LINE;
+  }
 
-// Add the body to the response string
-response += body;
+  // Update the content type header if it is not "text/plain"
+  if (contentType !== "text/plain") {
+    response_headers.contentType = "Content-Type: " + contentType + NEW_LINE;
+  }
 
-// Return the response string
-return response;
+  // Add the user agent header if it is not empty
+  if (userAgent !== "") {
+    response_headers.userAgent = "User -Agent: " + userAgent + NEW_LINE;
+  }
+
+  // Check if the body is not empty
+  if (body !== "") {
+    // Check if the content encoding is "gzip" and the compressBody flag is true
+    if (
+      response_headers.contentEncoding?.includes("gzip") &&
+      compressBody === true
+    ) {
+      // Compress the body using zlib
+      const compressed = zlib.gzipSync(body);
+
+      // Update the content length header with the compressed length
+      response_headers.contentLength =
+        "Content-Length: " + compressed.length + NEW_LINE; // overwrite content length
+
+      // Initialize the response string
+      let response = "";
+
+      // Add the response headers to the response string
+      Object.values(response_headers).forEach((value) => {
+        response += value;
+      });
+
+      // Add a newline character to the response string to indicate the end of headers
+      response += NEW_LINE; // every header adds a new line so after all headers add a new line so it becomes two new lines meaning end of headers
+
+      // Return the response string and the compressed body
+      return [response, compressed];
+    }
+  }
+
+  let response = "";
+  Object.values(response_headers).forEach((value) => {
+    response += value;
+  });
+
+  response += NEW_LINE; // every header adds a new line so after all headers add a new line so it becomes two new lines meaning end of headers
+
+  response += body;
+
+  return response;
 };
 
-// Create a TCP server
 const server = net.createServer((socket) => {
-  // Handle the close event for the socket
   socket.on("close", () => {
-    // End the socket
     socket.end();
   });
 
-  // Handle the data event for the socket
   socket.on("data", (data) => {
-    // Convert the data to a string
     const stringData = data.toString();
-    // Log the string data
     console.log(stringData);
 
-    // Split the string data into an array of lines
     const arrayData = stringData.split("\r\n");
 
-    // Get the body of the request
     const body = arrayData[arrayData.length - 1];
 
-    // Split the first line of the request into an array of method, path, and version
     const methodPathVersion = arrayData[0].split(" ");
-    // Get the method of the request
     const method = methodPathVersion[0];
-    // Get the path of the request
     const path = methodPathVersion[1];
-    // Get the version of the request
     const version = methodPathVersion[2];
 
-    // Initialize the request object
     const request = {
-      // Set the method of the request
       method: method,
-      // Set the path of the request
       path: path,
-      // Set the version of the request
       version: version,
     };
 
-    // Handle the request for the root path
     if (request.path === "/") {
-      // Create an HTTP response for the request
       const response = createHttpResponse({});
-      // Write the response to the socket
       socket.write(response);
     }
 
-    // Iterate over the lines of the request
     arrayData.map((header) => {
-      // Check if the header includes the user agent
-      if (header.includes("User -Agent:")) {
-        // Split the header into an array of key and value
+      if (header.includes("User-Agent:")) {
         let splited = header.split(": ");
-        // Set the user agent of the request
         request.userAgent = splited[1];
       }
-      // Check if the header includes the accept encoding
       if (header.includes("Accept-Encoding:")) {
-        // Split the header into an array of key and value
         let splited = header.split(": ");
-        // Set the accept encoding of the request
         request.acceptEncoding = splited[1];
       }
     });
