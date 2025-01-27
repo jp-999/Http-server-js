@@ -160,7 +160,7 @@ const server = net.createServer((socket) => {
     // Parse the headers
     arrayData.map((header) => {
       // Handle the user agent header
-      if (header.includes("User -Agent:")) {
+      if (header.includes("user-Agent:")) {
         // Split the header into key and value
         let splited = header.split(": ");
         // Update the request object with the user agent
