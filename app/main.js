@@ -241,14 +241,15 @@ const server = net.createServer((socket) => {
         statusCode: 201,
       });
       socket.write(response);
-    } else {
-      const response = createHttpResponse({
-        message: "Not Found",
-        statusCode: 404,
+    } else { // Handle cases that do not match any previous conditions
+      const response = createHttpResponse({ // Create a response object for a "Not Found" error
+        message: "Not Found", // Set the message to "Not Found"
+        statusCode: 404, // Set the status code to 404
       });
-      socket.write(response);
+      socket.write(response); // Send the response back to the client
     }
-    socket.end();
+    socket.end(); // Close the socket connection
   });
 });
-server.listen(PORT, "localhost");
+server.listen(PORT, "localhost"); // Start the server and listen on the specified port
+
