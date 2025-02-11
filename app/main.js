@@ -191,29 +191,24 @@ const server = net.createServer((socket) => {
     request.restPart = request.path.slice(ECHO_PART_LENGTH);
 
     if (request.echoPart === "/echo/") {
-      let response;
-      let compressedBody;
-      if (request.acceptEncoding?.includes("gzip")) {
-        [response, compressedBody] = createHttpResponse({
-          message: "OK",
-          statusCode: 200,
-          body: request.restPart,
-          acceptEncoding: request.acceptEncoding,
-          compressBody: true,
-        });
-      } else {
-        response = createHttpResponse({
-          message: "OK",
-          statusCode: 200,
-          body: request.restPart,
-          acceptEncoding: request.acceptEncoding,
-        });
-      }
-      socket.write(response);
-      if (compressedBody) {
+      const acceptsGzip = request.acceptEncoding?.includes("gzip");
+      const response = createHttpResponse({
+        statusCode: 200,
+        message: "OK",
+        body: request.restPart,
+        acceptEncoding: acceptsGzip ? "gzip" : "",
+        compressBody: acceptsGzip
+      });
+
+      // If response is an array (compressed response), handle it properly
+      if (Array.isArray(response)) {
+        const [headers, compressedBody] = response;
+        socket.write(headers);
         socket.write(compressedBody);
-        socket.end();
+      } else {
+        socket.write(response);
       }
+      socket.end();
     } else if (request.method === "GET" && request.path.startsWith("/files")) {
       const fileName = request.path.split("/")[2];
       const filePath = `${fileDir}/${fileName}`;
@@ -233,13 +228,18 @@ const server = net.createServer((socket) => {
         socket.end();
       }
     } else if (request.method === "POST" && request.path.startsWith("/files")) {
+      // Extract the filename from the third segment of the URL path (e.g., "/files/test.txt" -> "test.txt")
       const fileName = request.path.split("/")[2];
+      // Construct the full file path by combining the directory path with the filename
       const filePath = `${fileDir}/${fileName}`;
+      // Write the request body content to the file synchronously
       fs.writeFileSync(filePath, body);
+      // Create an HTTP 201 Created response
       const response = createHttpResponse({
         message: "Created",
         statusCode: 201,
       });
+      // Send the response back to the client
       socket.write(response);
     } else { // Handle cases that do not match any previous conditions
       const response = createHttpResponse({ // Create a response object for a "Not Found" error
