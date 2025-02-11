@@ -210,21 +210,31 @@ const server = net.createServer((socket) => {
       }
       socket.end();
     } else if (request.method === "GET" && request.path.startsWith("/files")) {
+      // Extract the filename from the third segment of the URL path (e.g., "/files/test.txt" -> "test.txt")
       const fileName = request.path.split("/")[2];
+      // Construct the full file path by combining the directory path with the filename
       const filePath = `${fileDir}/${fileName}`;
 
+      // Check if the file exists at the specified path
       if (!fs.existsSync(filePath)) {
+        // If file doesn't exist, create a 404 Not Found response
         const response = createHttpResponse({
           message: "Not Found",
           statusCode: 404,
         });
+        // Send the error response to the client
         socket.write(response);
+        // Close the connection
         socket.end();
       } else {
+        // If file exists, read its contents synchronously
         const fileContent = fs.readFileSync(filePath);
+        // Send a 200 OK response with the file content
+        // Include headers for content encoding, type, and length
         socket.write(
           `HTTP/1.1 200 OK\r\nContent-Encoding: ${request.acceptEncoding}\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}\r\n`
         );
+        // Close the connection
         socket.end();
       }
     } else if (request.method === "POST" && request.path.startsWith("/files")) {
