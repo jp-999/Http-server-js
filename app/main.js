@@ -200,14 +200,19 @@ const server = net.createServer((socket) => {
         compressBody: acceptsGzip
       });
 
-      // If response is an array (compressed response), handle it properly
+      // Check if the response is an array (indicates compressed content)
       if (Array.isArray(response)) {
+        // Destructure the array into headers and compressed body
         const [headers, compressedBody] = response;
+        // Write the HTTP headers to the socket
         socket.write(headers);
+        // Write the compressed body content to the socket
         socket.write(compressedBody);
       } else {
+        // For non-compressed responses, write the entire response at once
         socket.write(response);
       }
+      // Close the socket connection
       socket.end();
     } else if (request.method === "GET" && request.path.startsWith("/files")) {
       // Extract the filename from the third segment of the URL path (e.g., "/files/test.txt" -> "test.txt")
