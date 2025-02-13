@@ -186,18 +186,22 @@ const server = net.createServer((socket) => {
       }
     }
 
-    const ECHO_PART_LENGTH = 6; // "/echo/"
+    const ECHO_PART_LENGTH = 6; // Length of "/echo/" string
+    // Extract the first 6 characters to check if it's an echo request
     request.echoPart = request.path.slice(0, ECHO_PART_LENGTH);
+    // Get the remaining part of the path after "/echo/" which will be echoed back
     request.restPart = request.path.slice(ECHO_PART_LENGTH);
 
     if (request.echoPart === "/echo/") {
+      // Check if the client accepts gzip compression
       const acceptsGzip = request.acceptEncoding?.includes("gzip");
+      // Create HTTP response with the echo content
       const response = createHttpResponse({
         statusCode: 200,
         message: "OK",
-        body: request.restPart,
-        acceptEncoding: acceptsGzip ? "gzip" : "",
-        compressBody: acceptsGzip
+        body: request.restPart,          // Use the extracted content as response body
+        acceptEncoding: acceptsGzip ? "gzip" : "", // Set gzip encoding if client accepts it
+        compressBody: acceptsGzip        // Compress the body if client accepts gzip
       });
 
       // Check if the response is an array (indicates compressed content)
