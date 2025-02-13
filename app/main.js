@@ -111,24 +111,36 @@ const createHttpResponse = ({
   return response;
 };
 
+// Create a TCP server that handles incoming connections
 const server = net.createServer((socket) => {
+  // Handle socket close event
   socket.on("close", () => {
     socket.end();
   });
 
+  // Handle incoming data from the client
   socket.on("data", (data) => {
+    // Convert the received buffer data to a string
     const stringData = data.toString();
+    // Log the raw HTTP request for debugging
     console.log(stringData);
 
+    // Split the request into lines using CRLF as delimiter
     const arrayData = stringData.split("\r\n");
 
+    // Get the request body (last element of the array)
     const body = arrayData[arrayData.length - 1];
 
+    // Parse the first line of the request (e.g., "GET /path HTTP/1.1")
     const methodPathVersion = arrayData[0].split(" ");
+    // Extract HTTP method (GET, POST, etc.)
     const method = methodPathVersion[0];
+    // Extract request path
     const path = methodPathVersion[1];
+    // Extract HTTP version
     const version = methodPathVersion[2];
 
+    // Create a request object to store parsed information
     const request = {
       method: method,
       path: path,
