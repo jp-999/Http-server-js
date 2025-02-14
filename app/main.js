@@ -142,9 +142,9 @@ const server = net.createServer((socket) => {
 
     // Create a request object to store parsed information
     const request = {
-      method: method,
-      path: path,
-      version: version,
+      method: method,      // Store the HTTP method (GET, POST, etc.)
+      path: path,         // Store the request path
+      version: version,   // Store the HTTP version
     };
 
     if (request.path === "/") {
