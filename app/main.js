@@ -83,19 +83,23 @@ const createHttpResponse = ({
       response_headers.contentLength =
         "Content-Length: " + compressed.length + NEW_LINE; // overwrite content length
 
-      // Initialize the response string
+      // Initialize an empty string to build the HTTP response
       let response = "";
-
-      // Add the response headers to the response string
+      // Concatenate all header values from the response_headers object
       Object.values(response_headers).forEach((value) => {
         response += value;
       });
 
-      // Add a newline character to the response string to indicate the end of headers
-      response += NEW_LINE; // every header adds a new line so after all headers add a new line so it becomes two new lines meaning end of headers
+      // Add an extra newline to separate headers from body
+      // Every header adds a new line, so after all headers add another new line
+      // This creates two newlines total, indicating the end of headers section
+      response += NEW_LINE;
 
-      // Return the response string and the compressed body
-      return [response, compressed];
+      // Append the response body (if any)
+      response += compressed;
+
+      // Return the complete HTTP response string
+      return response;
     }
   }
 
@@ -178,12 +182,14 @@ const server = net.createServer((socket) => {
         return;
       }
 
+      // Check if the client's Accept-Encoding header includes "gzip"
       if (acceptEncoding?.includes(ACCEPTED_ENCODING)) {
+        // Create an HTTP response with gzip encoding
         const response = createHttpResponse({
-          message: "OK",
-          statusCode: 200,
-          acceptEncoding: "gzip",
-          body: userAgent,
+          message: "OK",                  // Set response status message
+          statusCode: 200,               // Set HTTP status code to 200 (OK)
+          acceptEncoding: "gzip",        // Indicate gzip compression support
+          body: userAgent,               // Set response body to the client's User-Agent string
         });
         socket.write(response);
       } else {
