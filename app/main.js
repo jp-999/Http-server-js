@@ -193,13 +193,16 @@ const server = net.createServer((socket) => {
         });
         socket.write(response);
       } else {
+        // Create an HTTP response indicating success (200 OK)
         const response = createHttpResponse({
-          message: "OK",
-          statusCode: 200,
-          acceptEncoding: "gzip",
-          body: userAgent,
+          message: "OK",                  // Set response status message to "OK"
+          statusCode: 200,               // Set HTTP status code to 200 (OK)
+          acceptEncoding: "gzip",        // Indicate gzip compression support
+          body: userAgent,               // Set response body to the client's User-Agent string
         });
+        // Send the response back to the client
         socket.write(response);
+        // Close the socket connection
         socket.end();
       }
     }
