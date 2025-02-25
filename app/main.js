@@ -157,12 +157,18 @@ const server = net.createServer((socket) => {
     }
 
     arrayData.map((header) => {
+      // Check if the header includes "User-Agent:"
       if (header.includes("User-Agent:")) {
+        // Split the header into key and value
         let splited = header.split(": ");
+        // Store the User-Agent value in the request object
         request.userAgent = splited[1];
       }
+      // Check if the header includes "Accept-Encoding:"
       if (header.includes("Accept-Encoding:")) {
+        // Split the header into key and value
         let splited = header.split(": ");
+        // Store the Accept-Encoding value in the request object
         request.acceptEncoding = splited[1];
       }
     });
