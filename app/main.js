@@ -168,18 +168,25 @@ const server = net.createServer((socket) => {
     });
 
     if (request.path === "/user-agent") {
+      // Define the accepted encoding type for the response
       const ACCEPTED_ENCODING = "gzip";
+      // Retrieve the User-Agent string from the request
       const userAgent = request.userAgent;
+      // Retrieve the Accept-Encoding header from the request
       const acceptEncoding = request.acceptEncoding;
 
+      // Check if the User-Agent string is missing
       if (!userAgent) {
+        // Create a response indicating a bad request (400)
         const response = createHttpResponse({
-          message: "Bad Request",
-          statusCode: 400,
+          message: "Bad Request",        // Set response status message to "Bad Request"
+          statusCode: 400,               // Set HTTP status code to 400 (Bad Request)
         });
+        // Send the error response to the client
         socket.write(response);
+        // Close the socket connection
         socket.end();
-        return;
+        return; // Exit the function early
       }
 
       // Check if the client's Accept-Encoding header includes "gzip"
