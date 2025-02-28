@@ -164,7 +164,7 @@ const server = net.createServer((socket) => {
         return match ? match[1] : null;
       };
 
-      // Extract User-Agent and Accept-Encoding values
+      // Extract User-Agent, Accept-Encoding, Content-Type, and Content-Length values
       const userAgentValue = extractHeaderValue(header, "User-Agent");
       if (userAgentValue) {
         request.userAgent = userAgentValue;
@@ -174,6 +174,26 @@ const server = net.createServer((socket) => {
       if (acceptEncodingValue) {
         request.acceptEncoding = acceptEncodingValue;
       }
+
+      const contentTypeValue = extractHeaderValue(header, "Content-Type");
+      if (contentTypeValue) {
+        request.contentType = contentTypeValue; // Store Content-Type if present
+      } else {
+        request.contentType = "text/plain"; // Default value
+      }
+
+      const contentLengthValue = extractHeaderValue(header, "Content-Length");
+      if (contentLengthValue) {
+        request.contentLength = parseInt(contentLengthValue, 10); // Store Content-Length if present
+      } else {
+        request.contentLength = 0; // Default value
+      }
+
+      // Log extracted headers for debugging
+      console.log(`Extracted Header - User-Agent: ${request.userAgent}`);
+      console.log(`Extracted Header - Accept-Encoding: ${request.acceptEncoding}`);
+      console.log(`Extracted Header - Content-Type: ${request.contentType}`);
+      console.log(`Extracted Header - Content-Length: ${request.contentLength}`);
     });
 
     if (request.path === "/user-agent") {
