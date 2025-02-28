@@ -157,14 +157,21 @@ const server = net.createServer((socket) => {
     }
 
     arrayData.forEach((header) => {
-      // Check for "User-Agent:" header and extract its value
-      if (header.startsWith("User-Agent:")) {
-        const [, userAgentValue] = header.split(": ");
+      // Function to extract header values
+      const extractHeaderValue = (header, key) => {
+        const regex = new RegExp(`^${key}:\\s*(.+)$`);
+        const match = header.match(regex);
+        return match ? match[1] : null;
+      };
+
+      // Extract User-Agent and Accept-Encoding values
+      const userAgentValue = extractHeaderValue(header, "User-Agent");
+      if (userAgentValue) {
         request.userAgent = userAgentValue;
       }
-      // Check for "Accept-Encoding:" header and extract its value
-      if (header.startsWith("Accept-Encoding:")) {
-        const [, acceptEncodingValue] = header.split(": ");
+
+      const acceptEncodingValue = extractHeaderValue(header, "Accept-Encoding");
+      if (acceptEncodingValue) {
         request.acceptEncoding = acceptEncodingValue;
       }
     });
